@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:schedule_manager/classes/pair.dart';
@@ -8,6 +9,9 @@ class EditSchedule extends StatefulWidget {
 }
 
 class _EditScheduleState extends State<EditSchedule> {
+  bool _isLoading=false;
+  DateTime dateTime;
+  String _docId='ejlm8O1vN4xx2U6uCznl';
   List scheduleMonday=[];
   List scheduleTuesday=[];
   List scheduleWednesday=[];
@@ -19,6 +23,13 @@ class _EditScheduleState extends State<EditSchedule> {
   List days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 //  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchBusyHour();
+
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +47,8 @@ class _EditScheduleState extends State<EditSchedule> {
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   elevation: 10.0,
-                  child: Text('Submit'),
-                  onPressed: (){},
+                  child: _isLoading?CircularProgressIndicator(strokeWidth: 2.0,):Text('Submit'),
+                  onPressed: _isLoading?null:(){uploadBusyHours();},
                 ),
               ],
             )
@@ -46,12 +57,37 @@ class _EditScheduleState extends State<EditSchedule> {
     );
   }
   Widget editScheduleWeekList(){
+//    return ListView.builder(physics: NeverScrollableScrollPhysics(),shrinkWrap: true,itemCount: days.length,itemBuilder: (BuildContext context,int index){
+//      return FutureBuilder(
+//        future: Firestore.instance.collection('user').document(_docId).collection(days[index]).getDocuments(),
+//        builder: (BuildContext context,AsyncSnapshot<QuerySnapshot> asyncSnapshot){
+//          if(!asyncSnapshot.hasData)
+//            return Card(
+//              child: ExpansionTile(
+//                title: Text(days[index]),
+//                children: <Widget>[
+//                  CircularProgressIndicator()
+//                ],
+//              ),
+//            );
+//          return Card(
+//            child: ExpansionTile(
+//              title: Text(days[index]),
+//              children: <Widget>[
+//                editScheduleDay(index,asyncSnapshot)
+//              ],
+//            ),
+//          );
+//      },
+//      );
+//    });
+
     return ListView.builder(physics: NeverScrollableScrollPhysics(),shrinkWrap: true,itemCount: days.length,itemBuilder: (BuildContext context,int index){
       return Card(
         child: ExpansionTile(
           title: Text(days[index]),
           children: <Widget>[
-            editScheduleDay(index+1)
+            editScheduleDay(index)
           ],
         ),
       );
@@ -60,25 +96,30 @@ class _EditScheduleState extends State<EditSchedule> {
 
   Widget editScheduleDay(int day){
     List scheduleDayList;
-    if(day==1)
+    if(day==0)
       scheduleDayList=scheduleMonday;
-    else if(day==2)
+    else if(day==1)
       scheduleDayList=scheduleTuesday;
-    else if(day==3)
+    else if(day==2)
       scheduleDayList=scheduleWednesday;
-    else if(day==4)
+    else if(day==3)
       scheduleDayList=scheduleThursday;
-    else if(day==5)
+    else if(day==4)
       scheduleDayList=scheduleFriday;
-    else if(day==6)
+    else if(day==5)
       scheduleDayList=scheduleSaturday;
-    else if(day==7)
+    else if(day==6)
       scheduleDayList=scheduleSunday;
 
+//    int asyncSnapshotLength=asyncSnapshot.data.documents.length;
+//    for(int index=0;index<asyncSnapshotLength;index++){
+//      scheduleDayList=[];
+//      scheduleDayList.add(Pair.fromMapObject(asyncSnapshot.data.documents[index].data));
+//    }
     //NeverScrollableScrollPhysics() does not allow particular ListView to scroll
     return ListView.builder(physics: NeverScrollableScrollPhysics(),shrinkWrap: true,itemCount: scheduleDayList.length+1,itemBuilder: (BuildContext context,int index){
 
-      print(index);
+//      print(index);
       if(index!=scheduleDayList.length)
         return Padding(
           padding: const EdgeInsets.all(3.0),
@@ -89,7 +130,7 @@ class _EditScheduleState extends State<EditSchedule> {
               Text(duration(scheduleDayList[index]),textAlign:TextAlign.center,style: TextStyle(fontSize: 18),),
               FlatButton(
                 child: Icon(Icons.delete),
-                onPressed: (){deleteTime(scheduleDayList,index);},
+                onPressed: _isLoading?null:(){deleteTime(scheduleDayList,index);},
 
               )
 
@@ -154,9 +195,94 @@ class _EditScheduleState extends State<EditSchedule> {
         fontSize: 10.0
     );
   }
-  
+
 
   String duration(Pair pair){
     return pair.left.hour.toString()+':'+pair.left.minute.toString()+' - '+pair.right.hour.toString()+':'+pair.right.minute.toString();
   }
+
+  void uploadBusyHours() async {
+//    dateTime=DateTime.now();
+    setState(() {
+      _isLoading=true;
+    });
+//    print(dateTime.toString());
+//    print('Uploading');
+    for(int day=0;day<days.length;day++) {
+      List scheduleDayList;
+      if(day==0)
+        scheduleDayList=scheduleMonday;
+      else if(day==1)
+        scheduleDayList=scheduleTuesday;
+      else if(day==2)
+        scheduleDayList=scheduleWednesday;
+      else if(day==3)
+        scheduleDayList=scheduleThursday;
+      else if(day==4)
+        scheduleDayList=scheduleFriday;
+      else if(day==5)
+        scheduleDayList=scheduleSaturday;
+      else if(day==6)
+        scheduleDayList=scheduleSunday;
+      await uploadScheduleDay(scheduleDayList,day);
+//      for (int busyHour = 0; busyHour<scheduleDayList.length;busyHour++)
+//        Firestore.instance.collection('user').document(_docId).collection(days[day]).add(scheduleDayList[busyHour].toMap());
+    }
+//    print('Uploaded');
+//    toast('uploaded');
+    setState(() {
+      _isLoading=false;
+    });
+//    print(DateTime.now().toString());
+  }
+
+  void uploadScheduleDay(List scheduleDayList,int day) async {
+    var snapshots=await Firestore.instance.collection('user').document(_docId).collection(days[day]).getDocuments();
+    int snapshotCount=snapshots.documents.length;
+    for(int index=0;index<snapshotCount;index++)
+      await Firestore.instance.collection('user').document(_docId).collection(days[day]).document(snapshots.documents[index].documentID).delete();
+
+    for (int busyHour = 0; busyHour<scheduleDayList.length;busyHour++)
+      Firestore.instance.collection('user').document(_docId).collection(days[day]).add(scheduleDayList[busyHour].toMap());
+
+
+  }
+
+  void fetchBusyHour() async {
+    _isLoading=true;
+    setState(() {
+
+    });
+    for(int day=0;day<days.length;day++){
+      List scheduleDayList;
+      if(day==0)
+        scheduleDayList=scheduleMonday;
+      else if(day==1)
+        scheduleDayList=scheduleTuesday;
+      else if(day==2)
+        scheduleDayList=scheduleWednesday;
+      else if(day==3)
+        scheduleDayList=scheduleThursday;
+      else if(day==4)
+        scheduleDayList=scheduleFriday;
+      else if(day==5)
+        scheduleDayList=scheduleSaturday;
+      else if(day==6)
+        scheduleDayList=scheduleSunday;
+      var snapshot=await Firestore.instance.collection('user').document(_docId).collection(days[day]).getDocuments();
+      int documentsLength=snapshot.documents.length;
+      for(int index=0;index<documentsLength;index++){
+        scheduleDayList.add(Pair.fromMapObject(snapshot.documents[index].data));
+      }
+      setState(() {
+
+      });
+    }
+    _isLoading=false;
+    setState(() {
+
+    });
+
+  }
+  
 }
