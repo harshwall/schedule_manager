@@ -11,44 +11,72 @@ class _EditScheduleState extends State<EditSchedule> {
   List scheduleMonday=[];
   List scheduleTuesday=[];
   List scheduleWednesday=[];
-  List scheduleThrusday=[];
+  List scheduleThursday=[];
   List scheduleFriday=[];
   List scheduleSaturday=[];
   List scheduleSunday=[];
+
+  List days=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 //  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Schedule'),
+        title: Text('Add busy hours'),
       ),
-      body: editScheduleWeekList(),
+      body: ListView(
+        children: <Widget>[
+          editScheduleWeekList(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  elevation: 10.0,
+                  child: Text('Submit'),
+                  onPressed: (){},
+                ),
+              ],
+            )
+        ],
+      ),
     );
   }
   Widget editScheduleWeekList(){
-    return ListView(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text('Add busy hours',textAlign:TextAlign.center,style: TextStyle(fontSize: 25),),
-        ),
-        ExpansionTile(
-          title: Text('Monday'),
+    return ListView.builder(physics: NeverScrollableScrollPhysics(),shrinkWrap: true,itemCount: days.length,itemBuilder: (BuildContext context,int index){
+      return Card(
+        child: ExpansionTile(
+          title: Text(days[index]),
           children: <Widget>[
-            editScheduleDay(0)
+            editScheduleDay(index+1)
           ],
-        )
-
-      ],
-    );
+        ),
+      );
+    });
   }
 
   Widget editScheduleDay(int day){
     List scheduleDayList;
-    scheduleDayList=scheduleMonday;
+    if(day==1)
+      scheduleDayList=scheduleMonday;
+    else if(day==2)
+      scheduleDayList=scheduleTuesday;
+    else if(day==3)
+      scheduleDayList=scheduleWednesday;
+    else if(day==4)
+      scheduleDayList=scheduleThursday;
+    else if(day==5)
+      scheduleDayList=scheduleFriday;
+    else if(day==6)
+      scheduleDayList=scheduleSaturday;
+    else if(day==7)
+      scheduleDayList=scheduleSunday;
 
-    return ListView.builder(shrinkWrap: true,itemCount: scheduleDayList.length+1,itemBuilder: (BuildContext context,int index){
+    //NeverScrollableScrollPhysics() does not allow particular ListView to scroll
+    return ListView.builder(physics: NeverScrollableScrollPhysics(),shrinkWrap: true,itemCount: scheduleDayList.length+1,itemBuilder: (BuildContext context,int index){
 
       print(index);
       if(index!=scheduleDayList.length)
@@ -126,6 +154,7 @@ class _EditScheduleState extends State<EditSchedule> {
         fontSize: 10.0
     );
   }
+  
 
   String duration(Pair pair){
     return pair.left.hour.toString()+':'+pair.left.minute.toString()+' - '+pair.right.hour.toString()+':'+pair.right.minute.toString();
