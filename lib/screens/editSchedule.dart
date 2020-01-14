@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:schedule_manager/classes/pair.dart';
 
 class EditSchedule extends StatefulWidget {
   @override
@@ -56,10 +58,10 @@ class _EditScheduleState extends State<EditSchedule> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               Text('Busy Hours: ',textAlign:TextAlign.center,style: TextStyle(fontSize: 18),),
-              Text(scheduleDayList[index].toString(),textAlign:TextAlign.center,style: TextStyle(fontSize: 18),),
+              Text(duration(scheduleDayList[index]),textAlign:TextAlign.center,style: TextStyle(fontSize: 18),),
               FlatButton(
                 child: Icon(Icons.delete),
-                onPressed: (){deleteTime(day,index);},
+                onPressed: (){deleteTime(scheduleDayList,index);},
 
               )
 
@@ -86,10 +88,15 @@ class _EditScheduleState extends State<EditSchedule> {
   }
 
   addClicked(List scheduleDayList) async {
-    TimeOfDay selectedTime=await showTimePicker(context: context, initialTime: TimeOfDay.now());
-    print(selectedTime.toString());
-    if(selectedTime!=null)
-      scheduleDayList.add(selectedTime);
+    TimeOfDay startTime=await showTimePicker(context: context, initialTime: TimeOfDay.now());
+    print(startTime.toString());
+    if(startTime!=null){
+      toast(startTime.toString()+' selected');
+      TimeOfDay endTime=await showTimePicker(context: context, initialTime: TimeOfDay.now());
+      Pair startEndTime=Pair(startTime,endTime);
+      if(endTime!=null)
+        scheduleDayList.add(startEndTime);
+    }
     setState(() {
       print(scheduleDayList.toString());
     });
@@ -98,6 +105,29 @@ class _EditScheduleState extends State<EditSchedule> {
 
   }
 
-  void deleteTime(int day, int index) {}
+  void deleteTime(List scheduleDayList, int index) {
+    print(scheduleDayList);
+    scheduleDayList.removeAt(index);
+    setState(() {
 
+    });
+    print(scheduleDayList);
+
+
+  }
+
+  void toast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 10.0
+    );
+  }
+
+  String duration(Pair pair){
+    return pair.left.hour.toString()+':'+pair.left.minute.toString()+' - '+pair.right.hour.toString()+':'+pair.right.minute.toString();
+  }
 }
