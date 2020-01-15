@@ -172,7 +172,7 @@ class _FreeTimeState extends State<FreeTime> {
 //    Pair pair;
 //    var map=Map<String,int>();
     TimeOfDay endTime=TimeOfDay(hour: 0,minute: 0);
-    if(busyHours.length!=0 && busyHours[0].left.hour!=0 && busyHours[0].left.minute!=0) {
+    if(busyHours.length!=0 && (busyHours[0].left.hour!=0 || busyHours[0].left.minute!=0)) {
       scheduleDayList.add(
           getPair(0, 0, busyHours[0].left.hour, busyHours[0].left.minute));
       endTime=TimeOfDay(hour:busyHours[0].right.hour,minute: busyHours[0].right.minute);
