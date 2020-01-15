@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:schedule_manager/classes/person.dart';
 import 'package:schedule_manager/screens/editSchedule.dart';
+import 'package:schedule_manager/screens/selectPeople.dart';
 class HomePage extends StatefulWidget {
+  Person person;
+  HomePage(this.person);
+
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomePageState createState() => _HomePageState(person);
 }
 
 class _HomePageState extends State<HomePage> {
+
+  Person person;
+  _HomePageState(this.person);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,28 +25,43 @@ class _HomePageState extends State<HomePage> {
         child: ListView(
           children: <Widget>[
             UserAccountsDrawerHeader(
-//              accountEmail: Text(_user.email),
-//              accountName: Text(_user.name),
-//              currentAccountPicture: Container(
-////								child: Image.network(userDetails.photoUrl),
-//                decoration: _user.photoUrl==null?BoxDecoration():BoxDecoration(
+              accountName: Text(person.name),
+              currentAccountPicture: Container(
+								child: Icon(Icons.person,size: 64,color: Colors.white,),
+//                decoration: BoxDecoration(
 //                    shape: BoxShape.circle,
-//                    image: DecorationImage(
-//                        fit: BoxFit.fill,
-//                        image: NetworkImage(_user.photoUrl)
-//                    )
+////                    image: DecorationImage(
+////                        fit: BoxFit.fill,
+////                        image: Icon(Icons.cloud)
+////                    )
 //                ),
-//              ),
+              ),
             ),
             ListTile(
               leading: Icon(Icons.edit),
               title: Text('Edit Schedule'),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>EditSchedule()));
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>EditSchedule(person)));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.people),
+              title: Text('Select people'),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context)=>SelectPeople(person)));
               },
             ),
           ],
         ),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+
+        children: <Widget>[
+          Icon(Icons.cloud,size: 64,color: Colors.teal,),
+          Center(child: Text('INTERNET CONNECTION REQUIRED  :-)'))
+        ],
       ),
     );
   }

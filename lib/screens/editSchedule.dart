@@ -2,16 +2,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:schedule_manager/classes/pair.dart';
+import 'package:schedule_manager/classes/person.dart';
 
 class EditSchedule extends StatefulWidget {
+  Person person;
+  EditSchedule(this.person);
+
   @override
-  _EditScheduleState createState() => _EditScheduleState();
+  _EditScheduleState createState() => _EditScheduleState(person);
 }
 
 class _EditScheduleState extends State<EditSchedule> {
+
+  Person person;
+  _EditScheduleState(this.person);
+
+
   bool _isLoading=false;
   DateTime dateTime;
-  String _docId='ejlm8O1vN4xx2U6uCznl';
+  String _docId;
   List scheduleMonday=[];
   List scheduleTuesday=[];
   List scheduleWednesday=[];
@@ -27,6 +36,7 @@ class _EditScheduleState extends State<EditSchedule> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    _docId=person.docId;
     fetchBusyHour();
 
   }
@@ -43,11 +53,12 @@ class _EditScheduleState extends State<EditSchedule> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 RaisedButton(
+                  color: Colors.black,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   elevation: 10.0,
-                  child: _isLoading?CircularProgressIndicator(strokeWidth: 2.0,):Text('Submit'),
+                  child: _isLoading?CircularProgressIndicator(strokeWidth: 2.0,):Text('Submit',style: TextStyle(color: Colors.white)),
                   onPressed: _isLoading?null:(){uploadBusyHours();},
                 ),
               ],
@@ -142,15 +153,18 @@ class _EditScheduleState extends State<EditSchedule> {
           padding: const EdgeInsets.all(3.0),
           child: Container(
             color: Colors.black,
-            child: GestureDetector(
-              onTap: (){print('clicked');addClicked(scheduleDayList);},
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Icon(Icons.add,color: Colors.white,)
-                ],
-              ),
-            ),
+            child: RaisedButton(
+                  color: Colors.black,
+                  child: _isLoading?Container():Text('Add', style: TextStyle(color: Colors.white)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  elevation: 10.0,
+                  onPressed: _isLoading?null:() {
+                    addClicked(scheduleDayList);
+
+                  }
+              )
           )
         );
     });
@@ -163,7 +177,7 @@ class _EditScheduleState extends State<EditSchedule> {
       toast(startTime.toString()+' selected');
       TimeOfDay endTime=await showTimePicker(context: context, initialTime: TimeOfDay.now());
       Pair startEndTime=Pair(startTime,endTime);
-      if(endTime!=null)
+      if(endTime!=null && compare(startTime,endTime))
         scheduleDayList.add(startEndTime);
     }
     setState(() {
@@ -283,6 +297,21 @@ class _EditScheduleState extends State<EditSchedule> {
 
     });
 
+  }
+
+  compare(TimeOfDay left,TimeOfDay right){
+    if(left.hour<right.hour)
+      return true;
+    else if(left.hour==right.hour){
+      if(left.minute<right.minute)
+        return true;
+      else if(left.minute==right.minute)
+        return false;
+      else
+        return false;
+    }
+    else
+      return false;
   }
   
 }

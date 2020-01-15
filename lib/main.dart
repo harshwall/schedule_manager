@@ -1,12 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:schedule_manager/screens/homePage.dart';
+import 'package:schedule_manager/screens/signUp.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(MyApp());
+import 'classes/person.dart';
+
+void main() {
+
+  SharedPreferences.getInstance().then((prefs) {
+    print('hello');
+    final String jsonName=prefs.getString('name');
+    final String jsonDocId=prefs.getString('docId');
+    print('hey');
+
+    if(jsonName==null || jsonName.isEmpty || jsonDocId==null || jsonDocId.isEmpty) {
+      print('inside if');
+      Person person=Person('','');
+      print(person.name);
+      return runApp(MyApp(person));
+    }
+    else {
+      print('outside if');
+      return runApp(MyApp(Person(jsonName,jsonDocId)));
+    }
+  });
+//  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  Person person;
+  MyApp(this.person);
   @override
   Widget build(BuildContext context) {
+    print(person.name+' saket');
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
@@ -22,7 +49,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: person.name==''?SignUp(person):HomePage(person),
     );
   }
 }
