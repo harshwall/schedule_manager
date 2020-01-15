@@ -153,9 +153,9 @@ class _EditScheduleState extends State<EditSchedule> {
           padding: const EdgeInsets.all(3.0),
           child: Container(
             color: Colors.black,
-            child: RaisedButton(
+            child: _isLoading?Container():RaisedButton(
                   color: Colors.black,
-                  child: _isLoading?Container():Text('Add', style: TextStyle(color: Colors.white)),
+                  child: Text('Add', style: TextStyle(color: Colors.white)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
