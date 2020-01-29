@@ -46,6 +46,8 @@ class _SelectPeopleState extends State<SelectPeople> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
+
+                  Text(people[index].name),
                   Checkbox(
                     value: checkboxValue[index],
                     onChanged: (bool value){
@@ -55,7 +57,6 @@ class _SelectPeopleState extends State<SelectPeople> {
                       });
                     },
                   ),
-                  Text(people[index].name)
                 ],
               ),
             ),

@@ -7,6 +7,7 @@ import 'classes/person.dart';
 
 void main() {
 
+  WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.getInstance().then((prefs) {
     print('hello');
     final String jsonName=prefs.getString('name');
@@ -14,13 +15,13 @@ void main() {
     print('hey');
 
     if(jsonName==null || jsonName.isEmpty || jsonDocId==null || jsonDocId.isEmpty) {
-      print('inside if');
+//      print('inside if');
       Person person=Person('','');
       print(person.name);
       return runApp(MyApp(person));
     }
     else {
-      print('outside if');
+//      print('outside if');
       return runApp(MyApp(Person(jsonName,jsonDocId)));
     }
   });

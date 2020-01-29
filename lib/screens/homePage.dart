@@ -54,15 +54,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-
-        children: <Widget>[
-          Icon(Icons.cloud,size: 64,color: Colors.teal,),
-          Center(child: Text('INTERNET CONNECTION REQUIRED  :-)'))
-        ],
-      ),
+      body: Center(child: Icon(Icons.cloud_done,size: 64,color: Colors.teal,)),
     );
   }
 }

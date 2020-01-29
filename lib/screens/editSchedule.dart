@@ -288,11 +288,13 @@ class _EditScheduleState extends State<EditSchedule> {
       for(int index=0;index<documentsLength;index++){
         scheduleDayList.add(Pair.fromMapObject(snapshot.documents[index].data));
       }
-      setState(() {
+      if(this.mounted)
+        setState(() {
 
       });
     }
     _isLoading=false;
+    if(this.mounted)
     setState(() {
 
     });
